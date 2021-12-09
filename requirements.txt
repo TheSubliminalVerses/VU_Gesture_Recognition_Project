@@ -1,0 +1,6 @@
+pytorch
+opencv-contrib-python
+tqdm
+numpy
+pyautogui
+mediapipe
