@@ -84,8 +84,3 @@ class ImageManip:
         self.device.read()
         cv.destroyAllWindows()
 
-
-if __name__ == "__main__":
-    manip = ImageManip()
-    manip.make_data()
-

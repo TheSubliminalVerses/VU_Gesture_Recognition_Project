@@ -30,7 +30,7 @@ class Camera:
                        4: "Full Screen", 5: "5s Fast Forward", 6: "5s Backward", 7: "10s Forward", 8: "10s Backward",
                        9: "null"}
 
-        self.wmp_labels = {0: "VK_SPACE", 9: "VK_TAB"}
+        self.wmp_labels = {0: "k", 9: "VK_TAB"}
 
     def __repr__(self):
         return f"Camera recording object, scaled by x{self.scale}. Utilizing cv2 image capture."
@@ -72,9 +72,9 @@ class Camera:
         with torch.no_grad():
             net_out = self.net(self.tensor_x)
             p_class = torch.argmax(net_out)
-            print(p_class)
+            # print(p_class)
 
-            if p_class in self.LABELS:
+            if p_class.item() in self.LABELS:
                 print(f"Predicted class {self.LABELS[p_class.item()]}")
             else:
                 return None

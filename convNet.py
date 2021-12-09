@@ -59,7 +59,7 @@ if __name__ == "__main__":
     test_y = labels[-val_size:]
 
     b_size = 100
-    EPOCHS = 100
+    EPOCHS = 250
 
     train_x.to(device)
     train_y.to(device)
