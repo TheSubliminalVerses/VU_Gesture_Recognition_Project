@@ -6,11 +6,10 @@ import torch
 import numpy as np
 import pyautogui
 import CvImgManip
-import matplotlib.pyplot as plt
 
 
 class Camera:
-    def __init__(self, scale, capture_device, interact_mode, init_weight=0.4):
+    def __init__(self, scale: float, capture_device: cv.VideoCapture, interact_mode, init_weight=0.4):
         self.scale = scale
         self.device = capture_device
         self.weight = init_weight
@@ -31,17 +30,11 @@ class Camera:
                        4: "Full Screen", 5: "5s Fast Forward", 6: "5s Backward", 7: "10s Forward", 8: "10s Backward",
                        9: "null"}
 
-        self.wmp_labels = {0: "k", 1: "mute", 2: "volumedown", 3: "volumeup"}
+        self.wmp_labels = {0: "k", 1: "mute", 2: "volumedown", 3: "volumeup", 4: "f", 5: "left", 6: "right", 7: "l",
+                           8: "j"}
 
     def __repr__(self):
         return f"Camera recording object, scaled by x{self.scale}. Utilizing cv2 image capture."
-
-    @staticmethod
-    def open_media():
-        """Open media that the user wants to target - Video Player"""
-        media_player = pyautogui.getWindowsWithTitle("Video Player")[0]
-        media_player.maximize()
-        media_player.activate()
 
     @staticmethod
     def open_youtube():
@@ -68,7 +61,8 @@ class Camera:
 
     def to_net(self, frame) -> None:
         """Main gesture recognition function. Contains the actual network to make predictions based on the loaded
-        state dict."""
+        state dict.
+        :param frame the picture/array to be precessed."""
         img = cv.resize(frame, (50, 50))
         to_tensor = np.array(img)
         self.tensor_x = torch.tensor([i for i in to_tensor], device=self.cuda_device, dtype=torch.float).view(-1, 1, 50,
@@ -90,7 +84,12 @@ class Camera:
 
     @staticmethod
     def resize(frame, scale=0.75):
-        """This function resizes the output frame by a given scaling factor"""
+        """This function resizes the output frame by a given scaling factor.
+        :param scale: Used to scale the framy by a given factor. default 0.75
+        :type scale: int
+        :param frame: The frame to be resized.
+        :type frame: np.ndarray"""
+
         width = int(frame.shape[0] * scale)
         height = int(frame.shape[1] * scale)
 
@@ -108,9 +107,7 @@ class Camera:
         self.load_network_data()  # loads neural network state dict (loads weights, features etc...)
         time.sleep(1)
 
-        if self.interact_mode == "Media Player":
-            self.open_media()
-        elif self.interact_mode == "YouTube":
+        if self.interact_mode == "YouTube":
             self.open_youtube()
 
         while True:

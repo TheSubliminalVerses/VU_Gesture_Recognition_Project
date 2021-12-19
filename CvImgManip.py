@@ -67,7 +67,9 @@ class ImageManip:
             frame = cv.flip(frame, 1)
             clone = frame.copy()
 
-            gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+            roi = frame[self.dim[0]:self.dim[2], self.dim[1]:self.dim[3]]
+
+            gray = cv.cvtColor(roi, cv.COLOR_BGR2GRAY)
             blur = cv.GaussianBlur(gray, (7, 7), 0)
 
             if self.frames < 30:
@@ -80,11 +82,15 @@ class ImageManip:
 
                     cv.imshow("Threshold", thresh)
                     # save the gestures to specified directories
-                    cv.imwrite(f"Gesture_Dataset/gesture_volume_down/gesture_volume_down{self.frames}.jpeg", thresh)
+                    cv.imwrite(f"Gesture_Dataset/gesture_full_screen/gesture_full_screen{self.frames}.jpeg", thresh)
 
             self.frames += 1
+            cv.rectangle(clone, (self.dim[3], self.dim[0]), (self.dim[1], self.dim[2]), (0, 255, 0), 2)
             print(self.frames)
             cv.imshow("Video", clone)
+
+            if self.frames == 30:
+                print("Done Calibrating, place hand!")
 
             if cv.waitKey(1) & 0xFF == ord('q') or self.frames == 2500:
                 self.cleanup()
@@ -94,3 +100,8 @@ class ImageManip:
         """Frees memory allocated by cv2."""
         self.device.read()
         cv.destroyAllWindows()
+
+
+if __name__ == "__main__":
+    cap = ImageManip()
+    cap.make_data()

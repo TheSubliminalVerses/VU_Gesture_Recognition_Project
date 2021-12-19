@@ -5,6 +5,8 @@ import torch.nn.functional as f
 import torch.optim as optim
 import torch.optim.lr_scheduler as sh
 from tqdm import tqdm
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import confusion_matrix
 
 
 # Network module for creating ConvNet Inherits from nn.Module (that's where the layers are defined)
@@ -72,17 +74,18 @@ if __name__ == "__main__":
 
     # make batch sizes and epoch numbers
     b_size = 100
-    EPOCHS = 250
+    EPOCHS = 1500
 
     # send train images and labels tensors to gpu
     train_x.to(device)
     train_y.to(device)
 
     # define and optimizer for neural network
-    # optimizer = optim.Adam(net.parameters(), lr=0.001)
+    # optimizer = optim.Adam(net.parameters(), lr=1e-3)
 
-    optimizer = optim.SGD(net.parameters(), lr=0.01, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=0.1, momentum=0.9)
     scheduler = sh.ExponentialLR(optimizer, gamma=0.9)
+    scheduler2 = sh.MultiStepLR(optimizer, milestones=[30, 80, 130], gamma=0.1)
 
     loss_fun = nn.MSELoss()  # loss function
 
@@ -98,10 +101,12 @@ if __name__ == "__main__":
             loss = loss_fun(out, batch_y)
             loss.backward()  # back-propagate loss function
             optimizer.step()  # moves the optimizer forward
-        scheduler.step()
 
-    print(f"Training finished with loss {loss * 100}%! Saving the model now...")
-    torch.save(net.state_dict(), "Brain.pt")
+        scheduler.step()
+        scheduler2.step()
+
+    #print(f"Training finished with loss {loss * 100}%! Saving the model now...")
+    #torch.save(net.state_dict(), "Brain.pt")
 
     # TESTING PHASE #
     ##############################################################################
@@ -112,7 +117,7 @@ if __name__ == "__main__":
     with torch.no_grad():
         for i in tqdm(range(len(test_x))):
             real_class = torch.argmax(test_y[i]).to(device)
-            net_out = net(test_x[i].view(-1, 1, 50, 50).to(device))[0]
+            net_out = net(test_x[i].view(-1, 1, 50, 50).to(device))
             predicted_class = torch.argmax(net_out)  # return the largest value in the tensor
 
             if predicted_class == real_class:
